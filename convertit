@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+import click
+import numpy as np
+
+@click.command()
+@click.argument('filename')
+@click.option(
+    '--labels/--no-labels', '-l',
+    default = False,
+    show_default = True,
+    help = 'first line contains axis labels',
+)
+@click.option(
+	'--mult', '-m',
+	default = "1.0 1.0",
+	help = 'multipliers for all data columns'
+)
+@click.option(
+	'--add', '-a',
+	default = "0.0 0.0",
+	help = 'additive corrections for all data columns'
+)
+def main(filename, labels, mult, add):
+
+	'''
+	!!! NOT WORKING YET !!!
+
+	Minimal converting script.\n
+	(c) Tomasz Skóra 2017\n
+	contact: tskora@ichf.edu.pl
+	'''
+
+	if labels: data = np.genfromtxt(filename, skip_header = 1)
+	else: data = np.genfromtxt(filename)
+
+	xs = np.array(data[:, 0], float)
+	ys = np.array([data[:, i] for i in range(1, len(data[0][:]))])
+
+	multipliers = [float(element) for element in mult.split()]
+	additives = [float(element) for element in add.split()]
+
+	# print(data)
+	# print(xs)
+	# print(ys)
+	# print(multipliers)
+	# print(additives)
+
+	xs *= multipliers[0]
+	xs += np.ones(len(xs)) * additives[0]
+	for i, y in enumerate(ys):
+		ys[i] *= multipliers[i+1]
+		ys[i] += np.ones(len(ys[i])) * additives[i+1]
+
+	if labels:
+		with open(filename, 'r') as file:
+			print(file.readline())
+
+	for i, x in enumerate(xs):
+		line = str(x)+" "+str(y[i])
+		# for j, y in enumerate(ys):
+		# 	line += str(y[i, j])+" "
+		print(line)
+
+
+
+	
+
+
+if __name__ == '__main__':
+	main()
